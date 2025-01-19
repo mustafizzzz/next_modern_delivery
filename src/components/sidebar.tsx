@@ -9,8 +9,6 @@ import {
   Users,
   Package,
   ClipboardList,
-  Settings,
-  LogOut
 } from 'lucide-react'
 import {
   Sidebar,

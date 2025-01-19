@@ -11,7 +11,7 @@ export const deliveryPartnerSchema = z.object({
     .number()
     .max(3, "Current load cannot exceed 3")
     .default(0),
-  areas: z.array(z.string()).nonempty("At least one area is required"),
+  areas: z.array(z.string()).min(1, "At least one area is required"),
   shift: z.object({
     start: z
       .string()
