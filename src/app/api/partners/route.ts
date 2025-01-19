@@ -8,6 +8,13 @@ export async function POST(req: Request) {
     const { name, email, phone, status, currentLoad, areas, shift, metrics } = await req.json();
     console.log('Request body: ', req.body);
 
+    if (!name || !email || !phone || !areas) {
+      return NextResponse.json(
+        { success: false, message: 'Please provide all required fields' },
+        { status: 400 }
+      );
+    }
+
     // Check if partner already exists
     const existingPartner = await DeliveryPartnerModel.findOne({ email });
 

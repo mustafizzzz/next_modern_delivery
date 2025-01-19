@@ -16,6 +16,19 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
+import {
+  Users,
+  Star,
+  MapPin,
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  MoreVertical,
+  Check,
+  X
+} from 'lucide-react';
+
 
 type PartnersPageProps = {
   partners: DeliveryPartner[]
@@ -51,7 +64,10 @@ export function Partners({ partners, metrics }: PartnersPageProps) {
           className="max-w-sm"
         />
         <Link href="/partners/register">
-          <Button>Register New Partner</Button>
+          <Button>
+            <Plus size={30} />
+            Register New Partner
+          </Button>
         </Link>
       </div>
 

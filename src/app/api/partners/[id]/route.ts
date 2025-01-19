@@ -2,6 +2,35 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import { DeliveryPartnerModel } from '@/model/DeliveryPartner';
 
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+
+  await dbConnect();
+  try {
+    const partnerId = params.id;
+
+    const partner = await DeliveryPartnerModel.findById(partnerId);
+
+    if (!partner) {
+      return NextResponse.json(
+        { success: false, message: 'Partner not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Partner Found Successfully", partner },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error getting partner: ', error);
+    return NextResponse.json(
+      { success: false, message: 'Error getting partner. Please try again later.' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
 
   await dbConnect();

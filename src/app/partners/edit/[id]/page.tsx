@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { z } from "zod"
 import { useForm, Controller } from "react-hook-form"
-import { deliveryPartnerSchema } from './../../../schemas/deliveryPartnerSchema';
+import { deliveryPartnerSchema } from '../../../../schemas/deliveryPartnerSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Select,
@@ -22,41 +22,72 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from 'lucide-react';
+import { DeliveryPartner } from '@/types/partner';
 import axios from 'axios';
+import { set } from 'mongoose'
+
 
 type FormData = z.infer<typeof deliveryPartnerSchema>
 
-export default function RegisterPartner() {
-  const router = useRouter();
+export default function EditPartner({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter()
+  const { id } = use(params);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
   const {
     register,
-    handleSubmit,
     control,
+    handleSubmit,
     formState: { errors },
-    watch,
+    reset,
     setValue,
   } = useForm<FormData>({
     resolver: zodResolver(deliveryPartnerSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      status: 'active',
-      currentLoad: 0,
-      areas: [],
-      shift: {
-        start: '',
-        end: '',
-      },
-      metrics: {
-        rating: 0,
-        completedOrders: 0,
-        cancelledOrders: 0,
-      },
-    },
-  })
+  });
+
+  useEffect(() => {
+    const fetchPartner = async () => {
+      try {
+        setIsLoading(true);
+        if (!id) {
+          toast({
+            title: "Error",
+            description: "Invalid partner ID.",
+            variant: "destructive",
+          });
+          router.push("/partners");
+          return;
+        }
+
+        const response = await axios.get(`/api/partners/${id}`);
+        if (response.data.success === false) {
+          toast({
+            title: 'Error',
+            description: response.data.message,
+          })
+          router.push('/partners');
+        }
+        reset(response.data.partner);
+      } catch (error) {
+
+        console.error('Error getting partner:', error);
+
+        toast({
+          title: 'Error',
+          description: 'Error getting partner. Please try again later.',
+        })
+
+        router.push('/partners');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPartner();
+  }, [id])
+
+
 
   const areas = ['Downtown', 'Midtown', 'Uptown', 'Suburbs', 'Waterfront']
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
@@ -79,34 +110,23 @@ export default function RegisterPartner() {
   }, [setValue]);
 
   const onSubmit = async (data: FormData) => {
-
     try {
-
       setIsLoading(true);
-      const response = await axios.post(`http://localhost:3000/api/partners`, data);
-
-      if (!response.data.success) {
+      console.log(data);
+      const response = await axios.put(`/api/partners/${id}`, data);
+      console.log("updated::::", response)
+      if (response.data.success) {
         toast({
-          title: 'Success!',
-          description: response.data.message
+          title: 'Success',
+          description: 'Partner updated successfully',
         });
-      } else {
-        toast({
-          title: 'Success!',
-          description: response.data.message
-        });
+        router.push('/partners');
       }
-
-
-
-      router.push('/partners');
+      setIsLoading(false);
     } catch (error) {
-
-      console.error('Error submitting form:', error);
-
       toast({
         title: 'Error',
-        description: 'There was an error while registering the partner.',
+        description: 'Failed to update partner',
         variant: 'destructive',
       });
     } finally {
@@ -114,13 +134,15 @@ export default function RegisterPartner() {
     }
   };
 
-
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="h-full flex items-center justify-center bg-gray-100 rounded-lg">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Register New Partner</CardTitle>
+          <CardTitle>Edit Partner</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -219,7 +241,6 @@ export default function RegisterPartner() {
               )}
             </div>
 
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="shift.start">Shift Start</Label>
@@ -247,13 +268,13 @@ export default function RegisterPartner() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait...
                 </>
               ) : (
-                'Register Partner'
+                'Update Partner'
               )}
             </Button>
           </form>
@@ -262,4 +283,3 @@ export default function RegisterPartner() {
     </div>
   )
 }
-

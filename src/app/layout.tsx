@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,6 +28,7 @@ export default function RootLayout({
               <main className="flex-1 p-6 overflow-auto">
                 {children}
               </main>
+              <Toaster />
             </SidebarInset>
           </div>
         </SidebarProvider>
