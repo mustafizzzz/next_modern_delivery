@@ -12,22 +12,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-import {
-  Users,
-  Star,
-  MapPin,
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  MoreVertical,
-  Check,
-  X
-} from 'lucide-react';
+import { Users, Star, Globe, Plus } from 'lucide-react';
 
 
 type PartnersPageProps = {
@@ -51,9 +41,9 @@ export function Partners({ partners, metrics }: PartnersPageProps) {
       <h1 className="text-4xl font-bold mb-8">Delivery Partners</h1>
 
       <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <MetricCard title="Total Active Partners" value={metrics.totalActive} />
-        <MetricCard title="Average Rating" value={metrics.avgRating.toFixed(2)} />
-        <MetricCard title="Top Areas" value={metrics.topAreas.join(', ')} />
+        <MetricCard title="Active Partners" value={metrics.totalActive} icon={Users} />
+        <MetricCard title="Average Rating" value={metrics.avgRating.toFixed(2)} icon={Star} />
+        <MetricCard title="Top Areas" value={metrics.topAreas.join(', ')} icon={Globe} />
       </div>
 
       <div className="flex justify-between items-center mb-4">
@@ -116,15 +106,19 @@ export function Partners({ partners, metrics }: PartnersPageProps) {
   )
 }
 
-function MetricCard({ title, value }: { title: string; value: string | number }) {
+function MetricCard({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType; }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-      </CardContent>
+
+    <Card className="p-6 flex-1 hover:bg-gray-50 transition-colors">
+      <div className="flex items-start space-x-4">
+        <div className="p-2 bg-gray-100 rounded-lg">
+          <Icon className="h-10 w-10 text-gray-600" />
+        </div>
+        <div>
+          <h3 className="text-[15px] font-medium text-gray-500 mb-1.5">{title}</h3>
+          <p className="text-[18px] font-semibold text-gray-900 leading-none">{value}</p>
+        </div>
+      </div>
     </Card>
   )
 }

@@ -3,11 +3,12 @@ import dbConnect from '@/lib/dbConnect';
 import { DeliveryPartnerModel } from '@/model/DeliveryPartner';
 
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 
   await dbConnect();
   try {
-    const partnerId = params.id;
+    const { id } = await params;
+    const partnerId = id;
 
     const partner = await DeliveryPartnerModel.findById(partnerId);
 
@@ -31,11 +32,12 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
 
   await dbConnect();
   try {
-    const partnerId = params.id;
+    const { id } = await params;
+    const partnerId = id;
     const { name, email, phone, status, currentLoad, areas, shift, metrics } = await req.json();
 
     //any one of the fields is required for updating the partner
@@ -81,11 +83,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   await dbConnect();
   try {
 
-    const partnerId = params.id;
+    const { id } = await params;
+    const partnerId = id;
 
     // Find and delete the partner by ID
     const partner = await DeliveryPartnerModel.findByIdAndDelete(partnerId);

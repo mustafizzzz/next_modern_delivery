@@ -69,6 +69,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
           router.push('/partners');
         }
         reset(response.data.partner);
+        setSelectedAreas(response.data.partner.areas || []);
       } catch (error) {
 
         console.error('Error getting partner:', error);
@@ -120,9 +121,10 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
           title: 'Success',
           description: 'Partner updated successfully',
         });
+        setIsLoading(false);
         router.push('/partners');
       }
-      setIsLoading(false);
+      
     } catch (error) {
       toast({
         title: 'Error',
@@ -189,6 +191,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
               <Controller
                 name="areas"
                 control={control}
+                defaultValue={selectedAreas}
                 render={({ field }) => (
                   <Select
                     open={open}
