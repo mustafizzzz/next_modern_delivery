@@ -7,62 +7,52 @@ export async function POST(req: Request) {
   await dbConnect();
 
   try {
-    // Fetch all successful assignments for recalculating metrics
-    const successfulAssignments = await AssignmentModel.find({ status: 'success' });
-
-    if (successfulAssignments.length === 0) {
-      return NextResponse.json(
-        { success: false, message: 'No successful assignments found to process.' },
-        { status: 400 }
-      );
-    }
-
     // Fetch existing metrics or create new if not present
     let metrics = await AssignmentMetricsModel.findOne();
+
     if (!metrics) {
       metrics = new AssignmentMetricsModel({
         totalAssigned: 0,
         successRate: 0,
         averageTime: 0,
-        failureReasons: []
+        failureReasons: [],
       });
     }
 
-    // Update metrics for successful assignments
-    metrics.totalAssigned = successfulAssignments.length;
+    // Fetch all assignments
+    const allAssignments = await AssignmentModel.find();
+    const successfulAssignments = allAssignments.filter((assignment) => assignment.status === 'success');
 
-    // Recalculate success rate
-    const failedAssignments = await AssignmentModel.find({ status: 'failed' });
+    // Calculate success rate
     const successfulCount = successfulAssignments.length;
-    const failureCount = failedAssignments.length;
-    metrics.successRate = successfulCount / (successfulCount + failureCount);
+    metrics.successRate = metrics.totalAssigned > 0
+      ? successfulCount / metrics.totalAssigned
+      : 0;
 
     // Calculate average time for successful assignments
-    const assignmentTimestamps = successfulAssignments.map(assignment => new Date(assignment.timestamp).getTime());
+    const assignmentTimestamps = successfulAssignments.map((assignment) => new Date(assignment.timestamp).getTime());
     const totalTime = assignmentTimestamps.reduce((acc, time) => acc + time, 0);
 
-    if (assignmentTimestamps.length > 0) {
-      metrics.averageTime = totalTime / assignmentTimestamps.length / 1000; // Convert ms to seconds
-    } else {
-      metrics.averageTime = 0;
-    }
+    metrics.averageTime = assignmentTimestamps.length > 0
+      ? totalTime / assignmentTimestamps.length / 1000 // Convert ms to seconds
+      : 0;
 
-    // Recalculate failure reasons and counts
+    // Update failure reasons
     const failureReasons = await AssignmentModel.aggregate([
       { $match: { status: 'failed' } },
-      { $group: { _id: '$reason', count: { $sum: 1 } } }
+      { $group: { _id: '$reason', count: { $sum: 1 } } },
     ]);
 
     metrics.failureReasons = failureReasons.map((fr) => ({
       reason: fr._id,
-      count: fr.count
+      count: fr.count,
     }));
 
-    // Save updated metrics
+    // Save the updated metrics
     await metrics.save();
 
     return NextResponse.json(
-      { success: true, message: 'Assignment metrics recalculated successfully.' },
+      { success: true, message: 'Assignment metrics recalculated successfully.', metrics },
       { status: 200 }
     );
 

@@ -51,6 +51,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       const partner = await DeliveryPartnerModel.findById(order.assignedTo);
       if (partner) {
         partner.currentLoad = Math.max(0, partner.currentLoad - 1);
+        partner.metrics.completedOrders += 1;
         await partner.save();
       }
     }
@@ -69,80 +70,19 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
           partnerId: order.assignedTo,
           timestamp: new Date(),
           status: status === 'delivered' ? 'success' : 'failed',
-          reason: status === 'failed' ? `Status changed to ${status}` : undefined,
+          reason: status === 'failed' ? `${reason}` : undefined,
         });
       } else {
         // Update the existing assignment
         assignment.status = status === 'delivered' ? 'success' : 'failed';
         assignment.timestamp = new Date();
         assignment.reason =
-          status === 'failed' ? `Status changed to ${status}` : undefined;
+          status === 'failed' ? `${reason}` : undefined;
       }
 
       // Save the assignment (whether it's newly created or updated)
       await assignment.save();
     }
-
-    // Update metrics only if the order is delivered or failed
-    if (status === 'delivered' || status === 'failed') {
-      let metrics = await AssignmentMetricsModel.findOne();
-
-      // If no metrics exist, create new metrics
-      if (!metrics) {
-        metrics = new AssignmentMetricsModel({
-          totalAssigned: 0,
-          successRate: 0,
-          averageTime: 0,
-          failureReasons: [],
-        });
-      }
-
-      // Fetch timestamps of all successful assignments to calculate average time
-      const successfulAssignments = await AssignmentModel.find({ status: 'success' }, 'timestamp');
-      const assignmentTimestamps = successfulAssignments.map((assignment) => assignment.timestamp);
-
-      // Calculate total time from all successful assignment timestamps
-      const totalTime = assignmentTimestamps.reduce(
-        (acc, timestamp) => acc + new Date(timestamp).getTime(),
-        0
-      );
-
-      // Update average time (in milliseconds converted to seconds for clarity)
-      if (assignmentTimestamps.length > 0) {
-        metrics.averageTime = totalTime / assignmentTimestamps.length / 1000; // Convert ms to seconds
-      } else {
-        metrics.averageTime = 0;
-      }
-
-
-      interface FailureReason {
-        reason: string;
-        count: number;
-      }
-
-      // Recalculate success rate
-      const totalFailures = metrics.failureReasons.reduce((acc: number, fr: FailureReason) => acc + fr.count, 0);
-      const successfulCount = metrics.totalAssigned - totalFailures;
-      metrics.successRate = successfulCount / metrics.totalAssigned;
-
-      // Update failure reasons
-      if (status === 'failed' && reason) {
-        const failureReasonIndex = metrics.failureReasons.findIndex(
-          (fr: FailureReason) => fr.reason === reason
-        );
-
-        if (failureReasonIndex >= 0) {
-          metrics.failureReasons[failureReasonIndex].count += 1;
-        } else {
-          metrics.failureReasons.push({ reason, count: 1 });
-        }
-      }
-
-      // Save updated metrics
-      await metrics.save();
-    }
-
-
 
     return NextResponse.json(
       { success: true, message: 'Order status updated successfully.', order },
