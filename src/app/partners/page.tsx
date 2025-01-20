@@ -6,11 +6,8 @@ import axios from "axios";
 import { Partners } from "./partners";
 import { DeliveryPartner } from "@/types/partner";
 
-// Create the query client
-function useQueryClientSingleton() {
-  const [queryClient] = useState(() => new QueryClient());
-  return queryClient;
-}
+
+const queryClient = new QueryClient()
 
 // Main content component
 function PartnersContent() {
@@ -44,8 +41,6 @@ function PartnersContent() {
 
 // Main page component
 export default function Page() {
-  const queryClient = useQueryClientSingleton();
-
   return (
     <QueryClientProvider client={queryClient}>
       <PartnersContent />
