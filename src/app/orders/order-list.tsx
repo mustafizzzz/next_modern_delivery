@@ -19,6 +19,7 @@ import { OrderStatusBadge } from "./order-status"
 type OrderListProps = {
   orders: Order[]
   partners: DeliveryPartner[]
+
 }
 
 
@@ -110,11 +111,11 @@ export function OrderList({ orders, partners }: OrderListProps) {
                 <TableCell>{order.customer.name}</TableCell>
                 <TableCell>
                   {order.status === "pending" && !order.assignedTo ? (
-                  <Badge variant="outline" className="capitalize">
-                    {order.status}
-                  </Badge>
+                    <Badge variant="outline" className="capitalize">
+                      {order.status}
+                    </Badge>
                   ) : (
-                  <OrderStatusBadge status={order.status} orderId={order._id} />
+                    <OrderStatusBadge status={order.status} orderId={order._id} />
                   )}
                 </TableCell>
                 <TableCell>${order.totalAmount.toFixed(2)}</TableCell>

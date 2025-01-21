@@ -11,15 +11,27 @@ const queryClient = new QueryClient()
 
 // Main content component
 function PartnersContent() {
-  
-  const { data: partners = [], isLoading, error } = useQuery<DeliveryPartner[]>({
+
+  const [refreshLoade, setRefreshLoade] = useState(false);
+
+  const { data: partners = [], isLoading, error, refetch } = useQuery<DeliveryPartner[]>({
+
     queryKey: ["partners"],
     queryFn: async () => {
-      const { data } = await axios.get("/api/partners");
-      return data.partners;
+      try {
+        setRefreshLoade(true);
+        const { data } = await axios.get("/api/partners");
+        return data.partners;
+      } catch (error) {
+        console.error("Error fetching partners", error);
+      } finally {
+        setRefreshLoade(false);
+      }
+
     },
     staleTime: 60000,
   });
+  
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -37,7 +49,7 @@ function PartnersContent() {
     topAreas: [...new Set(partners.flatMap((p) => p.areas || []))].slice(0, 3),
   };
 
-  return <Partners partners={partners} metrics={metrics} />;
+  return <Partners partners={partners} metrics={metrics} refetch={refetch} refreshLoade={refreshLoade} />;
 }
 
 // Main page component

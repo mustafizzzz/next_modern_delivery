@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Users, Star, Globe, Plus } from 'lucide-react';
+import { Users, Star, Globe, Plus, Loader2, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +34,11 @@ type PartnersPageProps = {
     avgRating: number
     topAreas: string[]
   }
+  refetch: () => void
+  refreshLoade: boolean
 }
 
-export function Partners({ partners, metrics }: PartnersPageProps) {
+export function Partners({ partners, metrics, refetch, refreshLoade }: PartnersPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleStatusChange = async (partnerId: string | undefined, status: 'active' | 'inactive') => {
@@ -83,12 +85,27 @@ export function Partners({ partners, metrics }: PartnersPageProps) {
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <Input
-          placeholder="Search partners..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+
+        <div className="flex space-x-4">
+          <Input
+            placeholder="Search partners..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+          <Button onClick={() => refetch()} variant="outline" disabled={refreshLoade}>
+            {refreshLoade ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </>
+            )}
+          </Button>
+        </div>
         <Link href="/partners/register">
           <Button>
             <Plus size={30} />

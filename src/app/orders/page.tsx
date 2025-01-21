@@ -15,18 +15,26 @@ const queryClient = new QueryClient()
 //main content component
 function OrdersPage() {
 
-
   const [filters, setFilters] = useState<OrderFilters>({
     status: [],
     areas: [],
     date: "",
   });
 
-  const { data: orders = [], isLoading, error } = useQuery<Order[]>({
+  const [refreshLoade, setRefreshLoade] = useState(false);
+
+  const { data: orders = [], isLoading, error, refetch } = useQuery<Order[]>({
     queryKey: ['orders'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/orders')
-      return data.orders
+      try {
+        setRefreshLoade(true);
+        const { data } = await axios.get('/api/orders')
+        return data.orders
+      } catch (error) {
+        console.error("Error fetching orders", error);
+      } finally {
+        setRefreshLoade(false);
+      }
     },
     staleTime: 1000 * 60  // 1 minutes
   })
@@ -41,8 +49,6 @@ function OrdersPage() {
     },
     staleTime: 1000 * 60
   })
-
-
 
 
   const filteredOrders = useMemo(() => {
@@ -109,7 +115,7 @@ function OrdersPage() {
       <h1 className="text-4xl font-bold mb-8">Orders Dashboard</h1>
       <MetricsCard metrics={metrics} />
       <div className="mt-8">
-        <OrderFiltersComponent filters={filters} onFilterChange={handleFilterChange} />
+        <OrderFiltersComponent filters={filters} onFilterChange={handleFilterChange} refetch={refetch} refreshLoade={refreshLoade} />
       </div>
       <div className="mt-4">
         <OrderList orders={filteredOrders} partners={partners} />
