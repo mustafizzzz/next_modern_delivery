@@ -85,7 +85,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
     };
 
     fetchPartner();
-  }, [id])
+  }, [id, reset, router, toast]);
 
 
 
