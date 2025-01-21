@@ -14,9 +14,8 @@ export function MetricsCard({ metrics }: MetricsCardProps) {
   const statusData = Object.entries(metrics.ordersByStatus).map(([name, value]) => ({ name, value }))
 
   const sortedAreaData = Object.entries(metrics.ordersByArea)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4)
     .map(([name, value]) => ({ name, value }))
+    .slice(0, 4)
 
   const formatDeliveryTime = (minutes: number) => {
     if (minutes < 60) {

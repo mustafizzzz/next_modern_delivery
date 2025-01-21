@@ -5,17 +5,17 @@ import { DeliveryPartnerModel } from '@/model/DeliveryPartner';
 import { AssignmentModel } from '@/model/Assignment';
 import { AssignmentMetricsModel } from '@/model/AssignmentMetrics';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   await dbConnect();
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const { status, reason } = await req.json();
 
 
 
     // Valid statuses for orders
-    const validStatuses = ['pending', 'picked', 'delivered', 'failed'];
+    const validStatuses = ['picked', 'delivered', 'failed'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { success: false, message: 'Invalid status provided.' },

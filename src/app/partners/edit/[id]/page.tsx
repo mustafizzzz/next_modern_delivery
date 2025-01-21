@@ -124,7 +124,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
         setIsLoading(false);
         router.push('/partners');
       }
-      
+
     } catch (error) {
       toast({
         title: 'Error',
@@ -241,6 +241,31 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
 
               {errors.areas && (
                 <p className="text-red-500 text-sm mt-1">{errors.areas.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.status && (
+                <p className="text-red-500 text-sm mt-1">{errors.status.message}</p>
               )}
             </div>
 

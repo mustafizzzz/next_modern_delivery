@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import { AssignmentMetricsModel } from '@/model/AssignmentMetrics';
 
+
 export async function GET(req: Request) {
   await dbConnect();
 
@@ -28,7 +29,11 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
+
+
 }
+
+
 
 
 

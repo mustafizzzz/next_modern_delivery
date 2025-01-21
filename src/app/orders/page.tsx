@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { OrderFiltersComponent } from "./order-filters"
 import { OrderList } from "./order-list"
 import { DeliveryPartner } from "@/types/partner"
+import { toast } from "@/hooks/use-toast"
 
 const queryClient = new QueryClient()
 
@@ -41,15 +42,6 @@ function OrdersPage() {
     staleTime: 1000 * 60
   })
 
-  // Filter active partners
-  const activePartners = useMemo(() => {
-    return partners.filter(partner =>
-      partner.status === 'active' &&
-      partner.currentLoad < 3
-    )
-  }, [partners])
-
-  // console.log('activePartners:::', activePartners);
 
 
 
@@ -106,9 +98,7 @@ function OrdersPage() {
     setFilters(newFilters)
   }, []);
 
-  const handleAssignPartner = useCallback((orderId: string, partnerId: string) => {
-    console.log('orderId:::', orderId);
-  }, []);
+
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -122,7 +112,7 @@ function OrdersPage() {
         <OrderFiltersComponent filters={filters} onFilterChange={handleFilterChange} />
       </div>
       <div className="mt-4">
-        <OrderList orders={filteredOrders} partners={activePartners} onAssignPartner={handleAssignPartner} />
+        <OrderList orders={filteredOrders} partners={partners} />
       </div>
     </div>
   )

@@ -16,8 +16,15 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-
 import { Users, Star, Globe, Plus } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import axios from 'axios';
+import { toast } from "@/hooks/use-toast";
 
 
 type PartnersPageProps = {
@@ -30,7 +37,36 @@ type PartnersPageProps = {
 }
 
 export function Partners({ partners, metrics }: PartnersPageProps) {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleStatusChange = async (partnerId: string | undefined, status: 'active' | 'inactive') => {
+    try {
+
+      if (partnerId === undefined) return;
+      const response = await axios.put(`/api/partners/${partnerId}`, { status });
+      console.log("updated::::", response)
+
+      if (response.data.success) {
+        toast({
+          title: 'Success',
+          description: 'Partner Status Updated successfully',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to update status',
+          variant: 'destructive',
+        })
+      }
+
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update status',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const filteredPartners = partners.filter((partner) =>
     partner.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -85,9 +121,24 @@ export function Partners({ partners, metrics }: PartnersPageProps) {
                   <TableCell>{partner.email}</TableCell>
                   <TableCell>{partner.phone}</TableCell>
                   <TableCell>
-                    <Badge variant={partner.status === 'active' ? 'outline' : 'secondary'}>
-                      {partner.status}
-                    </Badge>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Badge
+                          variant={partner.status === 'active' ? 'outline' : 'secondary'}
+                          className="cursor-pointer hover:opacity-80"
+                        >
+                          {partner.status}
+                        </Badge>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => handleStatusChange(partner._id, 'active')}>
+                          Active
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleStatusChange(partner._id, 'inactive')}>
+                          Inactive
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                   <TableCell>{partner.currentLoad}/3</TableCell>
                   <TableCell>{partner.areas.join(', ')}</TableCell>

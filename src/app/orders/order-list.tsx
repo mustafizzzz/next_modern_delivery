@@ -1,3 +1,4 @@
+"use client"
 import { useMemo, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -8,45 +9,78 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DeliveryPartner } from "@/types/partner"
+import { toast } from "@/hooks/use-toast"
+import axios from "axios"
+import { OrderStatusBadge } from "./order-status"
 
 type OrderListProps = {
   orders: Order[]
   partners: DeliveryPartner[]
-  onAssignPartner: (orderId: string, partnerId: string) => void
 }
 
 
-export function OrderList({ orders, partners, onAssignPartner }: OrderListProps) {
+export function OrderList({ orders, partners }: OrderListProps) {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
   const [search, setSearch] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+
 
   console.log('partners', partners);
 
 
   const [commandValue, setCommandValue] = useState("")
 
-  // Updated filtering logic
-  const filteredPartners = useMemo(() => {
-    const searchTerm = search.toLowerCase().trim()
-    return partners.filter((partner) =>
-      partner.name.toLowerCase().includes(searchTerm)
+  // Filter active partners
+  const activePartners = useMemo(() => {
+    return partners.filter(partner =>
+      partner.status === 'active' &&
+      partner.currentLoad < 3
     )
-  }, [partners, search])
+  }, [partners])
+
+  // search filtering logic
+  const filteredPartners = useMemo(() => {
+
+    return activePartners.filter(partner =>
+      partner.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [search, activePartners])
 
 
-  const handleAssignPartner = (orderId: string) => {
-    if (value) {
-      onAssignPartner(orderId, value)
-      setValue("")
-      setOpen(false)
-      setSearch("");
+
+
+  const handleAssignPartner = async (orderId: string) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('/api/orders/assign', { orderId, partnerId: value })
+      if (response.data.success) {
+        toast({
+          title: "Partner assigned",
+          description: "The partner has been assigned to the order successfully.",
+          variant: "default"
+        })
+        setValue("")
+        setOpen(false)
+        setSearch("");
+      }
+
+    } catch (error) {
+      console.error('Error assigning partner:', error)
+      toast({
+        title: "Error",
+        description: "Error assigning partner. Please try again later.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
 
   return (
     <Card>
@@ -75,113 +109,131 @@ export function OrderList({ orders, partners, onAssignPartner }: OrderListProps)
                 <TableCell>{order.orderNumber}</TableCell>
                 <TableCell>{order.customer.name}</TableCell>
                 <TableCell>
-                  <OrderStatusBadge status={order.status} />
+                  {order.status === "pending" && !order.assignedTo ? (
+                  <Badge variant="outline" className="capitalize">
+                    {order.status}
+                  </Badge>
+                  ) : (
+                  <OrderStatusBadge status={order.status} orderId={order._id} />
+                  )}
                 </TableCell>
                 <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
                 <TableCell>{order.area}</TableCell>
                 <TableCell>{order.scheduledFor}</TableCell>
-                <TableCell>{order.assignedTo || "Unassigned"}</TableCell>
-                <TableCell className="space-y-3">
+                <TableCell>
+                  {order.assignedTo ? partners.find(partner => partner._id === order.assignedTo)?.name : "Unassigned"}
+                </TableCell>
 
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
-                        View Details
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Order Details</DialogTitle>
-                      </DialogHeader>
-                      {selectedOrder && <OrderDetails order={selectedOrder} />}
-                    </DialogContent>
-                  </Dialog>
-
-                  {order.status === "pending" && (
-
+                <TableCell>
+                  <div className="flex flex-col space-y-3">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button size="sm">
-                          Assign Partner
+                        <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                          View Details
                         </Button>
                       </DialogTrigger>
-
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Assign Partner</DialogTitle>
+                          <DialogTitle>Order Details</DialogTitle>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="partner" className="text-right">
-                              Partner
-                            </Label>
-                            <div className="col-span-3">
-                              <Popover open={open} onOpenChange={setOpen}>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={open}
-                                    className="w-[200px] justify-between"
-                                  >
-                                    {value ? partners.find((partner) => partner._id === value)?.name : "Select partner..."}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[200px] p-0">
-
-                                  <Command shouldFilter={false}>
-                                    <CommandInput
-                                      placeholder="Search partner..."
-                                      value={commandValue}
-                                      onValueChange={(newValue) => {
-                                        setCommandValue(newValue)
-                                        setSearch(newValue)
-                                      }}
-                                    />
-                                    <CommandList>
-                                      {filteredPartners.length === 0 ? (
-                                        <CommandEmpty>No partner found.</CommandEmpty>
-                                      ) : (
-                                        <CommandGroup>
-                                          {filteredPartners.map((partner) => (
-                                            <CommandItem
-                                              key={partner._id}
-                                              value={partner._id}
-                                              onSelect={(currentValue) => {
-                                                setValue(currentValue === value ? "" : currentValue)
-                                                setOpen(false)
-                                              }}
-                                            >
-                                              <Check
-                                                className={cn(
-                                                  "mr-2 h-4 w-4",
-                                                  value === partner._id ? "opacity-100" : "opacity-0",
-                                                )}
-                                              />
-                                              {partner.name}
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      )}
-                                    </CommandList>
-                                  </Command>
-
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button type="submit" onClick={() => handleAssignPartner(order._id)}>
-                            Assign
-                          </Button>
-                        </DialogFooter>
+                        {selectedOrder && <OrderDetails order={selectedOrder} />}
                       </DialogContent>
                     </Dialog>
-                  )}
+
+                    {(order.status === "pending") && (order.assignedTo === "") && (
+
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm">
+                            Assign Partner
+                          </Button>
+                        </DialogTrigger>
+
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Assign Partner</DialogTitle>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="partner" className="text-right">
+                                Partner
+                              </Label>
+                              <div className="col-span-3">
+                                <Popover open={open} onOpenChange={setOpen}>
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      role="combobox"
+                                      aria-expanded={open}
+                                      className="w-[200px] justify-between"
+                                    >
+                                      {value ? activePartners.find((partner) => partner._id === value)?.name : "Select partner..."}
+                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[200px] p-0">
+
+                                    <Command shouldFilter={false}>
+                                      <CommandInput
+                                        placeholder="Search partner..."
+                                        value={commandValue}
+                                        onValueChange={(newValue) => {
+                                          setCommandValue(newValue)
+                                          setSearch(newValue)
+                                        }}
+                                      />
+                                      <CommandList>
+                                        {filteredPartners.length === 0 ? (
+                                          <CommandEmpty>No partner found.</CommandEmpty>
+                                        ) : (
+                                          <CommandGroup>
+                                            {filteredPartners.map((partner) => (
+                                              <CommandItem
+                                                key={partner._id}
+                                                value={partner._id}
+                                                onSelect={(currentValue) => {
+                                                  setValue(currentValue === value ? "" : currentValue)
+                                                  setOpen(false)
+                                                }}
+                                              >
+                                                <Check
+                                                  className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    value === partner._id ? "opacity-100" : "opacity-0",
+                                                  )}
+                                                />
+                                                {partner.name}
+                                              </CommandItem>
+                                            ))}
+                                          </CommandGroup>
+                                        )}
+                                      </CommandList>
+                                    </Command>
+
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button type="submit" onClick={() => handleAssignPartner(order._id)}>
+                              {isLoading ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait...
+                                </>
+                              ) : (
+                                'Assign Partner'
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+
+                  </div>
 
                 </TableCell>
+
               </TableRow>
             ))}
           </TableBody>
@@ -192,25 +244,25 @@ export function OrderList({ orders, partners, onAssignPartner }: OrderListProps)
   )
 }
 
-function OrderStatusBadge({ status }: { status: string }) {
+// function OrderStatusBadge({ status }: { status: string }) {
 
-  const getBadgeVariant = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-      pending: "outline",
-      assigned: "secondary",
-      picked: "secondary",
-      delivered: "default",
-      failed: "destructive",
-    }
-    return variants[status] ?? "default"
-  }
+//   const getBadgeVariant = (status: string) => {
+//     const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+//       pending: "outline",
+//       assigned: "secondary",
+//       picked: "secondary",
+//       delivered: "default",
+//       failed: "destructive",
+//     }
+//     return variants[status] ?? "default"
+//   }
 
-  return (
-    <Badge variant={getBadgeVariant(status)} className="capitalize">
-      {status}
-    </Badge>
-  )
-}
+//   return (
+//     <Badge variant={getBadgeVariant(status)} className="capitalize">
+//       {status}
+//     </Badge>
+//   )
+// }
 
 function OrderDetails({ order }: { order: Order }) {
   return (
