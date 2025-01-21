@@ -1,5 +1,5 @@
 import type React from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { AssignmentMetrics } from "@/types/assignment";
 
@@ -8,7 +8,7 @@ type FailureMetricsChartProps = {
 }
 
 const FailureMetricsChart: React.FC<FailureMetricsChartProps> = ({ metrics }) => {
-  
+
   const totalFailures = metrics.failureReasons.reduce((sum, item) => sum + item.count, 0)
 
   const dataWithPercentage = metrics.failureReasons.map((item) => ({

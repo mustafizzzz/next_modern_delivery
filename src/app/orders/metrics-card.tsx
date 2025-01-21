@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { PerformanceMetrics } from "@/types/orders"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer, Legend, LineChart, Line } from "recharts"
+import { XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer, Legend, LineChart, Line } from "recharts"
 import { Package2, Clock } from "lucide-react"
 
 type MetricsCardProps = {

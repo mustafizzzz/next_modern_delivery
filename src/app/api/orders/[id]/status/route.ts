@@ -3,7 +3,6 @@ import dbConnect from '@/lib/dbConnect';
 import { OrderModel } from '@/model/Order';
 import { DeliveryPartnerModel } from '@/model/DeliveryPartner';
 import { AssignmentModel } from '@/model/Assignment';
-import { AssignmentMetricsModel } from '@/model/AssignmentMetrics';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   await dbConnect();

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import { OrderModel } from '@/model/Order';
 import { DeliveryPartnerModel } from '@/model/DeliveryPartner';
-import { AssignmentModel } from '@/model/Assignment';
 import { AssignmentMetricsModel } from '@/model/AssignmentMetrics';
 
 export async function POST(req: Request) {

@@ -22,9 +22,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from 'lucide-react';
-import { DeliveryPartner } from '@/types/partner';
 import axios from 'axios';
-import { set } from 'mongoose'
+
 
 
 type FormData = z.infer<typeof deliveryPartnerSchema>

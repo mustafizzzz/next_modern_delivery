@@ -8,7 +8,6 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { OrderFiltersComponent } from "./order-filters"
 import { OrderList } from "./order-list"
 import { DeliveryPartner } from "@/types/partner"
-import { toast } from "@/hooks/use-toast"
 
 const queryClient = new QueryClient()
 

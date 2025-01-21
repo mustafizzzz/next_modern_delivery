@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import { AssignmentModel } from '@/model/Assignment';
 
-export async function GET(req: Request) {
+export async function GET() {
   await dbConnect();
 
   try {

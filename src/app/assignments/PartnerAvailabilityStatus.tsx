@@ -1,5 +1,5 @@
 import { Pie, PieChart, ResponsiveContainer, Cell, Legend, Tooltip as RechartsTooltip } from "recharts"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 
 export default function PartnerAvailabilityStatus({
   partners,

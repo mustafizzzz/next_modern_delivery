@@ -3,7 +3,7 @@ import dbConnect from '@/lib/dbConnect';
 import { AssignmentMetricsModel } from '@/model/AssignmentMetrics';
 
 
-export async function GET(req: Request) {
+export async function GET() {
   await dbConnect();
 
   try {
