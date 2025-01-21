@@ -7,11 +7,14 @@ import axios from "axios"
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { OrderFiltersComponent } from "./order-filters"
 import { OrderList } from "./order-list"
+import { DeliveryPartner } from "@/types/partner"
 
 const queryClient = new QueryClient()
 
 //main content component
 function OrdersPage() {
+
+
   const [filters, setFilters] = useState<OrderFilters>({
     status: [],
     areas: [],
@@ -29,13 +32,34 @@ function OrdersPage() {
 
   console.log('orders:::', orders);
 
+  const { data: partners = [], isLoading: isLoadingPartners } = useQuery<DeliveryPartner[]>({
+    queryKey: ['partners'],
+    queryFn: async () => {
+      const { data } = await axios.get('/api/partners')
+      return data.partners
+    },
+    staleTime: 1000 * 60
+  })
+
+  // Filter active partners
+  const activePartners = useMemo(() => {
+    return partners.filter(partner =>
+      partner.status === 'active' &&
+      partner.currentLoad < 3
+    )
+  }, [partners])
+
+  // console.log('activePartners:::', activePartners);
+
+
+
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
     return orders.filter(
       (order) =>
         (filters.status.length === 0 || filters.status.includes(order.status)) &&
         (filters.areas.length === 0 || filters.areas.includes(order.area)) &&
-        (filters.date === "" || order.createdAt.toISOString().startsWith(filters.date)),
+        (filters.date === "" || new Date(order.createdAt).toISOString().startsWith(filters.date)),
     )
   }, [orders, filters])
 
@@ -48,7 +72,7 @@ function OrdersPage() {
     let totalDeliveryTime = 0
     let deliveredOrders = 0
 
-    filteredOrders.forEach((order) => {
+    orders.forEach((order) => {
       // Count orders by status
       ordersByStatus[order.status] = (ordersByStatus[order.status] || 0) + 1
 
@@ -68,12 +92,12 @@ function OrdersPage() {
         : 0
 
     return {
-      totalOrders: filteredOrders.length,
+      totalOrders: orders.length,
       ordersByStatus,
       ordersByArea,
       averageDeliveryTime,
     }
-  }, [filteredOrders])
+  }, [orders])
 
   console.log('metrics:::', metrics);
 
@@ -97,8 +121,8 @@ function OrdersPage() {
       <div className="mt-8">
         <OrderFiltersComponent filters={filters} onFilterChange={handleFilterChange} />
       </div>
-      <div className="mt-8">
-        <OrderList orders={filteredOrders} onAssignPartner={handleAssignPartner} />
+      <div className="mt-4">
+        <OrderList orders={filteredOrders} partners={activePartners} onAssignPartner={handleAssignPartner} />
       </div>
     </div>
   )

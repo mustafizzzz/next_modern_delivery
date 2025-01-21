@@ -1,19 +1,24 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { OrderFilters } from "@/types/orders"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { CalendarIcon } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { OrderFilters } from "@/types/orders"
+import { format } from "date-fns"
+import { Calendar } from "@/components/ui/calendar"
 
 type OrderFiltersProps = {
   filters: OrderFilters
   onFilterChange: (filters: OrderFilters) => void
 }
+
+const statuses = ["pending", "assigned", "picked", "delivered"]
+const areas = ["Downtown", "Uptown", "Midtown", "Suburbs"] // Add or modify areas as needed
 
 export function OrderFiltersComponent({ filters, onFilterChange }: OrderFiltersProps) {
 
@@ -29,26 +34,24 @@ export function OrderFiltersComponent({ filters, onFilterChange }: OrderFiltersP
     onFilterChange({ ...filters, areas: newAreas })
   }
 
-  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onFilterChange({ ...filters, date: event.target.value })
+  const handleDateChange = (date: Date | undefined) => {
+    onFilterChange(
+      { ...filters, date: date ? format(date, "yyyy-MM-dd") : "" }
+    )
   }
 
   const clearFilters = () => {
     onFilterChange({ status: [], areas: [], date: "" })
   }
 
-  const statuses = ["pending", "assigned", "picked", "delivered"]
-  const areas = ["Downtown", "Uptown", "Midtown", "Suburbs"]
-
   return (
-
-    <div className="flex flex-wrap gap-4 items-start">
+    <div className="flex gap-4 items-end">
 
       <div>
-        <Label className="text-lg font-semibold">Status</Label>
+        <Label className="text-lg font-semibold block">Status</Label>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="mt-2">
+            <Button variant="outline" className="w-[150px]">
               {filters.status.length === 0 ? "Select Status" : `${filters.status.length} selected`}
             </Button>
           </DropdownMenuTrigger>
@@ -67,29 +70,48 @@ export function OrderFiltersComponent({ filters, onFilterChange }: OrderFiltersP
       </div>
 
       <div>
-        <Label className="text-lg font-semibold">Area</Label>
-        <div className="mt-2 space-y-2">
-          {areas.map((area) => (
-            <div key={area} className="flex items-center">
-              <Checkbox
-                id={`area-${area}`}
+        <Label className="text-lg font-semibold block">Area</Label>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-[150px]">
+              {filters.areas.length === 0 ? "Select Area" : `${filters.areas.length} selected`}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {areas.map((area) => (
+              <DropdownMenuCheckboxItem
+                key={area}
                 checked={filters.areas.includes(area)}
                 onCheckedChange={() => handleAreaChange(area)}
-              />
-              <label htmlFor={`area-${area}`} className="ml-2">
+              >
                 {area}
-              </label>
-            </div>
-          ))}
-        </div>
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
       <div>
-        <Label htmlFor="date" className="text-lg font-semibold">
-          Date
-        </Label>
-        <Input id="date" type="date" value={filters.date} onChange={handleDateChange} className="mt-2" />
+        <Label className="text-lg font-semibold block">Date</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-[180px]">
+              {filters.date ? format(new Date(filters.date), "PPP") : "Select date"}
+              <CalendarIcon className="ml-2 h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={filters.date ? new Date(filters.date) : undefined}
+              onSelect={handleDateChange}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
-      <Button onClick={clearFilters} variant="outline" className="mt-8">
+
+      <Button onClick={clearFilters} variant="outline" className="w-[150px]">
         Clear Filters
       </Button>
     </div>

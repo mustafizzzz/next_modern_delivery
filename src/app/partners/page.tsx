@@ -11,6 +11,7 @@ const queryClient = new QueryClient()
 
 // Main content component
 function PartnersContent() {
+  
   const { data: partners = [], isLoading, error } = useQuery<DeliveryPartner[]>({
     queryKey: ["partners"],
     queryFn: async () => {
