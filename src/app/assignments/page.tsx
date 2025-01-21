@@ -9,11 +9,13 @@ import PartnerAvailabilityStatus from "./PartnerAvailabilityStatus"
 import { ApiResponse, Assignment, AssignmentMetrics, AssignmentPageProps } from "@/types/assignment"
 import axios from "axios"
 import { useToast } from "@/hooks/use-toast"
+import { DeliveryPartner } from "@/types/partner"
 
 export default function AssignmentDashboard() {
   const { toast } = useToast()
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [metrics, setMetrics] = useState<AssignmentMetrics | null>(null)
+  const [partners, setPartners] = useState<DeliveryPartner[]>([])
   const [loading, setLoading] = useState(true)
 
 
@@ -24,17 +26,22 @@ export default function AssignmentDashboard() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [metricsResponse, assignmentsResponse] = await Promise.all([
-        fetch("api/assignments/metrics"),
-        fetch("api/assignments/all-assignments"),
+      const [metricsResponse, assignmentsResponse, partnersResponse] = await Promise.all([
+        axios.get("/api/assignments/metrics"),
+        axios.get("/api/assignments/all-assignments"),
+        axios.get("/api/partners")
       ])
-      const metricsData = await metricsResponse.json()
-      const assignmentsData = await assignmentsResponse.json()
 
-      setMetrics(metricsData.metrics)
-      setAssignments(assignmentsData.assignments)
+      setMetrics(metricsResponse.data.metrics)
+      setAssignments(assignmentsResponse.data.assignments)
+      setPartners(partnersResponse.data.partners)
     } catch (error) {
       console.error("Error fetching data:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch assignments data",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -43,10 +50,21 @@ export default function AssignmentDashboard() {
   const runAssignments = async () => {
     setLoading(true)
     try {
-      await fetch("api/assignments/run", { method: "POST" })
+      await axios.post("/api/assignments/run")
       await fetchData()
+      toast({
+        title: "Success",
+        description: "Assignments processed successfully",
+      })
     } catch (error) {
       console.error("Error running assignments:", error)
+      toast({
+        title: "Error",
+        description: "Failed to process assignments",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -58,7 +76,38 @@ export default function AssignmentDashboard() {
     return <div>No data available</div>
   }
 
-  const activePartners = new Set(assignments.map((a) => a.partnerId)).size
+  const activePartners = new Set(
+    partners
+      .filter(p => p.status === 'active')
+      .map(p => p._id)
+  ).size
+
+  const calculatePartnerMetrics = (partners: DeliveryPartner[]) => {
+    const availablePartners = partners.filter(p =>
+      p.status === 'active' && p.currentLoad < 3
+    ).length;
+
+    const busyPartners = partners.filter(p =>
+      p.status === 'active' && p.currentLoad >= 3
+    ).length;
+
+    const offlinePartners = partners.filter(p =>
+      p.status === 'inactive'
+    ).length;
+
+    return {
+      available: availablePartners,
+      busy: busyPartners,
+      offline: offlinePartners
+    };
+  }
+
+  const partnerMetrics = calculatePartnerMetrics(partners);
+
+  console.log("assignments:::", assignments);
+  console.log("metrics:::", metrics);
+
+
 
 
 
@@ -89,7 +138,7 @@ export default function AssignmentDashboard() {
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(metrics.successRate * 100).toFixed(2)}%</div>
+            <div className="text-2xl font-bold">{(metrics.successRate * 100)}%</div>
           </CardContent>
         </Card>
 
@@ -100,7 +149,12 @@ export default function AssignmentDashboard() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(metrics.averageTime / 60000).toFixed(2)} min</div>
+            <div className="text-2xl font-bold">
+              {metrics.averageTime > 3600000
+                ? `${(metrics.averageTime / 3600000).toFixed(2)} hrs`
+                : `${(metrics.averageTime / 60000).toFixed(2)} min`
+              }
+            </div>
           </CardContent>
         </Card>
 
@@ -117,42 +171,22 @@ export default function AssignmentDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        
         <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Active Assignments</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <ActiveAssignmentsTable assignments={assignments} />
+            <ActiveAssignmentsTable assignments={assignments} partners={partners} />
           </CardContent>
         </Card>
-        {/* <Card className="col-span-3">
+
+        <Card className="col-span-3 hover:bg-gray-50 transition-colors">
           <CardHeader>
             <CardTitle>Partner Availability</CardTitle>
           </CardHeader>
-          <CardContent>
-            <PartnerAvailabilityStatus partners={data.partners} />
-          </CardContent>
-        </Card> */}
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-
-        {/* <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Failure Reasons</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {data.metrics.failureReasons.map((reason) => (
-                <li key={reason.reason} className="flex items-center">
-                  <XCircle className="mr-2 h-4 w-4 text-destructive" />
-                  <span className="flex-1">{reason.reason}</span>
-                  <span className="font-medium">{reason.count}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card> */}
+          <PartnerAvailabilityStatus partners={partnerMetrics} />
+        </Card>
 
       </div>
     </div>
