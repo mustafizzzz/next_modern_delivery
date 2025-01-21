@@ -62,6 +62,7 @@ export function Partners({ partners, metrics, refetch, refreshLoade }: PartnersP
       }
 
     } catch (error) {
+      console.error("Error in handleStatusChange", error);
       toast({
         title: 'Error',
         description: 'Failed to update status',

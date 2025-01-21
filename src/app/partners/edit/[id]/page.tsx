@@ -116,6 +116,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
       const response = await axios.put(`/api/partners/${id}`, data);
       console.log("updated::::", response)
       if (response.data.success) {
+
         toast({
           title: 'Success',
           description: 'Partner updated successfully',
@@ -125,6 +126,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
       }
 
     } catch (error) {
+      console.error('Error updating partner:', error);
       toast({
         title: 'Error',
         description: 'Failed to update partner',
@@ -191,7 +193,7 @@ export default function EditPartner({ params }: { params: Promise<{ id: string }
                 name="areas"
                 control={control}
                 defaultValue={selectedAreas}
-                render={({ field }) => (
+                render={() => (
                   <Select
                     open={open}
                     onOpenChange={setOpen}

@@ -35,7 +35,6 @@ export default function RegisterPartner() {
     handleSubmit,
     control,
     formState: { errors },
-    watch,
     setValue,
   } = useForm<FormData>({
     resolver: zodResolver(deliveryPartnerSchema),
@@ -167,7 +166,7 @@ export default function RegisterPartner() {
               <Controller
                 name="areas"
                 control={control}
-                render={({ field }) => (
+                render={() => (
                   <Select
                     open={open}
                     onOpenChange={setOpen}

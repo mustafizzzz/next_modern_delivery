@@ -45,6 +45,8 @@ export function OrderStatusBadge({ status, orderId }: OrderStatusBadgeProps) {
   }
 
   const handleStatusUpdate = async (newStatus: string) => {
+    console.log('pendingStatus:::', pendingStatus);
+
     if (newStatus === 'failed') {
       setPendingStatus(newStatus)
       setShowDialog(true)
@@ -61,6 +63,7 @@ export function OrderStatusBadge({ status, orderId }: OrderStatusBadgeProps) {
         })
       }
     } catch (error) {
+      console.error("Error in handleStatusUpdate", error)
       toast({
         title: "Error",
         description: "Failed to update status",
@@ -86,15 +89,16 @@ export function OrderStatusBadge({ status, orderId }: OrderStatusBadgeProps) {
           title: "Status Updated",
           description: "Order marked as failed",
         })
-      }else{
+      } else {
         toast({
           title: "Status Updated",
           description: response.data.message,
-          "variant":"destructive"
+          "variant": "destructive"
         })
 
       }
     } catch (error) {
+      console.error("Error in handleFailedSubmit", error)
       toast({
         title: "Error",
         description: "Failed to update status",

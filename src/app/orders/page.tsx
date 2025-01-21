@@ -22,7 +22,7 @@ function OrdersPage() {
 
   const [refreshLoade, setRefreshLoade] = useState(false);
 
-  const { data: orders = [], isLoading, error, refetch } = useQuery<Order[]>({
+  const { data: orders = [], isLoading, refetch } = useQuery<Order[]>({
     queryKey: ['orders'],
     queryFn: async () => {
       try {
@@ -40,7 +40,7 @@ function OrdersPage() {
 
   console.log('orders:::', orders);
 
-  const { data: partners = [], isLoading: isLoadingPartners } = useQuery<DeliveryPartner[]>({
+  const { data: partners = [] } = useQuery<DeliveryPartner[]>({
     queryKey: ['partners'],
     queryFn: async () => {
       const { data } = await axios.get('/api/partners')
