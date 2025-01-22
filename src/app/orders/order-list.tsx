@@ -245,25 +245,6 @@ export function OrderList({ orders, partners }: OrderListProps) {
   )
 }
 
-// function OrderStatusBadge({ status }: { status: string }) {
-
-//   const getBadgeVariant = (status: string) => {
-//     const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-//       pending: "outline",
-//       assigned: "secondary",
-//       picked: "secondary",
-//       delivered: "default",
-//       failed: "destructive",
-//     }
-//     return variants[status] ?? "default"
-//   }
-
-//   return (
-//     <Badge variant={getBadgeVariant(status)} className="capitalize">
-//       {status}
-//     </Badge>
-//   )
-// }
 
 function OrderDetails({ order }: { order: Order }) {
   return (
