@@ -11,12 +11,14 @@ import { DeliveryPartner } from "@/types/partner"
 import axios from "axios"
 import { Order } from "@/types/orders"
 import { Assignment, AssignmentMetrics } from "@/types/assignment"
-import { ActiveOrderMap } from "./ActiveOrderMap"
+// import { ActiveOrderMap } from "ActiveOrderMapActiveOrderMap"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
+import dynamic from "next/dynamic"
 
 const queryClient = new QueryClient()
+const ActiveOrderMap = dynamic(() => import('./ActiveOrderMap').then(mod => mod.ActiveOrderMap), { ssr: false })
 
 function DashboardPage() {
 
