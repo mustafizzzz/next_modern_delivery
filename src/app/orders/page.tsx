@@ -99,6 +99,10 @@ function OrdersPage() {
 
   console.log('metrics:::', metrics);
 
+  const availableAreas = useMemo(() => {
+    return Array.from(new Set(orders.map(order => order.area)))
+  }, [orders])
+
 
   const handleFilterChange = useCallback((newFilters: typeof filters) => {
     setFilters(newFilters)
@@ -122,7 +126,8 @@ function OrdersPage() {
       <h1 className="text-4xl font-bold mb-8">Orders Dashboard</h1>
       <MetricsCard metrics={metrics} />
       <div className="mt-8">
-        <OrderFiltersComponent filters={filters} onFilterChange={handleFilterChange} refetch={refetch} refreshLoade={refreshLoade} />
+        <OrderFiltersComponent filters={filters} onFilterChange={handleFilterChange}
+          refetch={refetch} refreshLoade={refreshLoade} availableAreas={availableAreas} />
       </div>
       <div className="mt-4">
         <OrderList orders={filteredOrders} partners={partners} />

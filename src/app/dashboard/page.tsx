@@ -176,7 +176,7 @@ function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
 
-        <Card>
+        <Card className="hover:bg-gray-50">
           <CardHeader>
             <CardTitle>Active Orders Map</CardTitle>
           </CardHeader>
@@ -185,7 +185,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:bg-gray-50">
           <CardHeader>
             <CardTitle>Today's Scheduled Orders</CardTitle>
           </CardHeader>
@@ -221,7 +221,7 @@ function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        <Card>
+        <Card className="hover:bg-gray-50">
           <CardHeader>
             <CardTitle>Partner Availability Status</CardTitle>
           </CardHeader>
@@ -259,7 +259,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:bg-gray-50">
           <CardHeader>
             <CardTitle>Recent Assignments</CardTitle>
           </CardHeader>
@@ -314,8 +314,8 @@ function DashboardPage() {
 
 function MetricCard({ title, value, description, subValue, icon }: { title: string, value: string, description: string, subValue: string, icon: React.ReactNode }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="hover:bg-gray-50">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 ">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         {icon}
       </CardHeader>
@@ -327,6 +327,7 @@ function MetricCard({ title, value, description, subValue, icon }: { title: stri
     </Card>
   )
 }
+
 function OrderStatusBadge({ status }: { status: string }) {
 
   const getBadgeVariant = (status: string) => {

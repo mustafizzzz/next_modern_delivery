@@ -16,13 +16,14 @@ type OrderFiltersProps = {
   filters: OrderFilters
   onFilterChange: (filters: OrderFilters) => void
   refetch: () => void,
-  refreshLoade: boolean
+  refreshLoade: boolean,
+  availableAreas: string[]
 }
 
 const statuses = ["pending", "assigned", "picked", "delivered"]
 const areas = ["Downtown", "Uptown", "Midtown", "Suburbs"] // Add or modify areas as needed
 
-export function OrderFiltersComponent({ filters, onFilterChange, refetch, refreshLoade }: OrderFiltersProps) {
+export function OrderFiltersComponent({ filters, onFilterChange, refetch, refreshLoade, availableAreas }: OrderFiltersProps) {
 
   const handleStatusChange = (status: string) => {
     const newStatus = filters.status.includes(status)
@@ -83,7 +84,7 @@ export function OrderFiltersComponent({ filters, onFilterChange, refetch, refres
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {areas.map((area) => (
+              {availableAreas.map((area) => (
                 <DropdownMenuCheckboxItem
                   key={area}
                   checked={filters.areas.includes(area)}
