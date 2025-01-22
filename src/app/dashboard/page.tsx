@@ -109,7 +109,7 @@ function DashboardPage() {
                 toast({
                   title: "Error refreshing data",
                   description: "An error occurred while refreshing data",
-                  status: "destructive",
+                  variant: "destructive",
                 })
               }
             }
