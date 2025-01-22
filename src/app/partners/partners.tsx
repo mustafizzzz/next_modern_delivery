@@ -85,31 +85,35 @@ export function Partners({ partners, metrics, refetch, refreshLoade }: PartnersP
         <MetricCard title="Top Areas" value={metrics.topAreas.join(', ')} icon={Globe} />
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-
-        <div className="flex space-x-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+        <div className="flex flex-col w-full sm:flex-row gap-4 sm:space-x-4">
           <Input
             placeholder="Search partners..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
+            className="w-full sm:max-w-sm"
           />
-          <Button onClick={() => refetch()} variant="outline" disabled={refreshLoade}>
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            disabled={refreshLoade}
+            className="w-full sm:w-auto"
+          >
             {refreshLoade ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait...
               </>
             ) : (
               <>
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
               </>
             )}
           </Button>
         </div>
-        <Link href="/partners/register">
-          <Button>
-            <Plus size={30} />
+        <Link href="/partners/register" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
             Register New Partner
           </Button>
         </Link>

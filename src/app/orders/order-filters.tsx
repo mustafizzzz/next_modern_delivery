@@ -47,13 +47,16 @@ export function OrderFiltersComponent({ filters, onFilterChange, refetch, refres
   }
 
   return (
-    <div className="flex gap-4 items-end justify-between">
-      <div className="flex gap-4 items-end">
-        <div>
+
+    <div className="flex flex-col sm:flex-row gap-4 sm:items-end sm:justify-between">
+
+      <div className="flex flex-col sm:flex-row gap-4 items-end">
+
+        <div className="w-full sm:w-auto">
           <Label className="text-lg font-semibold block">Status</Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[150px]">
+              <Button variant="outline" className="w-full sm:w-[150px]">
                 {filters.status.length === 0 ? "Select Status" : `${filters.status.length} selected`}
               </Button>
             </DropdownMenuTrigger>
@@ -71,11 +74,11 @@ export function OrderFiltersComponent({ filters, onFilterChange, refetch, refres
           </DropdownMenu>
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           <Label className="text-lg font-semibold block">Area</Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[150px]">
+              <Button variant="outline" className="w-full sm:w-[150px]">
                 {filters.areas.length === 0 ? "Select Area" : `${filters.areas.length} selected`}
               </Button>
             </DropdownMenuTrigger>
@@ -93,11 +96,11 @@ export function OrderFiltersComponent({ filters, onFilterChange, refetch, refres
           </DropdownMenu>
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           <Label className="text-lg font-semibold block">Date</Label>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-[180px]">
+              <Button variant="outline" className="w-full sm:w-[180px]">
                 {filters.date ? format(new Date(filters.date), "PPP") : "Select date"}
                 <CalendarIcon className="ml-2 h-4 w-4" />
               </Button>
@@ -113,27 +116,34 @@ export function OrderFiltersComponent({ filters, onFilterChange, refetch, refres
           </Popover>
         </div>
 
-        <Button onClick={clearFilters} variant="outline" className="w-[150px]">
+        <Button
+          onClick={clearFilters}
+          variant="outline"
+          className="w-full sm:w-[150px]"
+        >
           Clear Filters
         </Button>
       </div>
 
-      <div>
-        <Button onClick={() => refetch()} variant="outline" disabled={refreshLoade}>
+      <div className="w-full sm:w-auto">
+        <Button
+          onClick={() => refetch()}
+          variant="outline"
+          disabled={refreshLoade}
+          className="w-full sm:w-auto"
+        >
           {refreshLoade ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait...
             </>
           ) : (
             <>
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </>
           )}
         </Button>
       </div>
-
-
     </div>
 
 

@@ -161,38 +161,37 @@ function AssignmentDashboard() {
 
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Left Column: Active Assignments Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Assignments</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ActiveAssignmentsTable assignments={assignments} partners={partners} />
-          </CardContent>
-        </Card>
-
-        {/* Right Column: Partner Availability and Failure Reasons */}
-        <div className="grid gap-4">
-
-          <Card className="hover:bg-gray-50 transition-colors">
+      <div className="grid gap-6">
+        {/* Mobile-first grid with single column, two columns on larger screens */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column: Active Assignments Table */}
+          <Card className="w-full">
             <CardHeader>
-              <CardTitle>Partner Availability</CardTitle>
+              <CardTitle>Active Assignments</CardTitle>
             </CardHeader>
-            <CardContent>
-              <PartnerAvailabilityStatus partners={partnerMetrics} />
+            <CardContent className="pl-2">
+              <ActiveAssignmentsTable assignments={assignments} partners={partners} />
             </CardContent>
           </Card>
 
-          {/* Failure Reasons */}
-          <Card className="hover:bg-gray-50 transition-colors">
-            <CardHeader>
-              <CardTitle>Failure Reasons</CardTitle>
-            </CardHeader>
+          {/* Right Column: Partner Availability and Failure Reasons */}
+          <div className="grid grid-cols-1 gap-6">
+            <Card className="w-full hover:bg-gray-50 transition-colors">
+              <CardHeader>
+                <CardTitle>Partner Availability</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PartnerAvailabilityStatus partners={partnerMetrics} />
+              </CardContent>
+            </Card>
 
-            <FailureMetricsChart metrics={metrics} />
-
-          </Card>
+            <Card className="w-full hover:bg-gray-50 transition-colors">
+              <CardHeader>
+                <CardTitle>Failure Reasons</CardTitle>
+              </CardHeader>
+              <FailureMetricsChart metrics={metrics} />
+            </Card>
+          </div>
         </div>
       </div>
 
