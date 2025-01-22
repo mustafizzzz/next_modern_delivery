@@ -55,6 +55,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       }
     }
 
+    if (status === 'failed' && order.assignedTo) {
+      const partner = await DeliveryPartnerModel.findById(order.assignedTo);
+      if (partner) {
+        partner.currentLoad = Math.max(0, partner.currentLoad - 1);
+        partner.metrics.cancelledOrders += 1;
+        await partner.save();
+      }
+    }
+
     // Make the assignment status
     if (status === 'delivered' || status === 'failed') {
       let assignment = await AssignmentModel.findOne({

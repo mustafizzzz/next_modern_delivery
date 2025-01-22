@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { OrderFiltersComponent } from "./order-filters"
 import { OrderList } from "./order-list"
 import { DeliveryPartner } from "@/types/partner"
+import { Loader2 } from "lucide-react"
 
 const queryClient = new QueryClient()
 
@@ -106,7 +107,14 @@ function OrdersPage() {
 
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    )
   }
 
   return (

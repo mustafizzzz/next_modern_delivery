@@ -83,6 +83,17 @@ function DashboardPage() {
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
   }, [assignments]);
 
+  if (refreshLoade) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
 
   const activePartners = partners.filter((p) => p.status === "active")
   const pendingOrders = orders.filter((o) => o.status === "pending")

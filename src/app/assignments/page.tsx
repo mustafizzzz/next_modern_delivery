@@ -82,7 +82,14 @@ function AssignmentDashboard() {
   const loading = metricsLoading || assignmentsLoading || partnersLoading;
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    )
   }
 
   if (!metrics || !assignments || assignments.length === 0) {
