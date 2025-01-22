@@ -187,7 +187,7 @@ function DashboardPage() {
 
         <Card className="hover:bg-gray-50">
           <CardHeader>
-            <CardTitle>Today's Scheduled Orders</CardTitle>
+            <CardTitle>Today&apos;s Scheduled Orders</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[300px] rounded-md">

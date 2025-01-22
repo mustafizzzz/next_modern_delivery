@@ -21,7 +21,6 @@ type OrderFiltersProps = {
 }
 
 const statuses = ["pending", "assigned", "picked", "delivered"]
-const areas = ["Downtown", "Uptown", "Midtown", "Suburbs"] // Add or modify areas as needed
 
 export function OrderFiltersComponent({ filters, onFilterChange, refetch, refreshLoade, availableAreas }: OrderFiltersProps) {
 
